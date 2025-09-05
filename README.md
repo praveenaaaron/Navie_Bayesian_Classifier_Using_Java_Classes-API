@@ -1,13 +1,13 @@
 
 
-# 📌 Simple Naïve Bayes Classifier Using Java Classes/API
+#  Simple Naïve Bayes Classifier Using Java Classes/API
 
 This project implements a **Naïve Bayes Classifier** in Java using only **core Java libraries** (no external ML libraries).
 It works on a **CSV dataset** where the **last column is the class label**.
 
 ---
 
-## 🚀 Features
+##  Features
 
 * Pure Java implementation (using `HashMap` for frequency counts).
 * Splits dataset into **Training (70%)** and **Testing (30%)**.
@@ -55,7 +55,7 @@ $$
 
 ---
 
-## 📂 Dataset Format (Your `data.csv`)
+##  Dataset Format (Your `data.csv`)
 
 The dataset has 7 rows with **3 numeric features** and **1 class label**:
 
@@ -75,7 +75,7 @@ The dataset has 7 rows with **3 numeric features** and **1 class label**:
 
 
 
-## 📊 Example Output
+## Example Output
 
 ```
 Accuracy: 50.0%
@@ -87,18 +87,12 @@ Class: B
   Recall: 0.50
 
 
-## ▶️ How to Run
+## ▶How to Run
 
 1. Place your dataset file as `data.csv`.
 2. Compile the program:
-
-
 javac SimpleNaiveBayes.java
-
-
 3. Run the program:
-
-
 java SimpleNaiveBayes
 
 
