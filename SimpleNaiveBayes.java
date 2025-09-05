@@ -1,0 +1,116 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class SimpleNaiveBayes {
+    private Map<String, Integer> classCounts = new HashMap<>();
+    private Map<String, Map<String, Integer>> featureCounts = new HashMap<>();
+    private int totalInstances = 0;
+
+    // Training
+    public void train(String[][] data) {
+        for (String[] instance : data) {
+            String label = instance[instance.length - 1];
+            classCounts.put(label, classCounts.getOrDefault(label, 0) + 1);
+
+            for (int i = 0; i < instance.length - 1; i++) {
+                String feature = i + "=" + instance[i];
+                featureCounts.putIfAbsent(feature, new HashMap<>());
+                Map<String, Integer> featureLabelCounts = featureCounts.get(feature);
+                featureLabelCounts.put(label, featureLabelCounts.getOrDefault(label, 0) + 1);
+            }
+            totalInstances++;
+        }
+    }
+
+    // Prediction
+    public String predict(String[] instance) {
+        double maxProb = -1;
+        String bestLabel = null;
+
+        for (String label : classCounts.keySet()) {
+            double prob = (double) classCounts.get(label) / totalInstances;
+
+            for (int i = 0; i < instance.length - 1; i++) {
+                String feature = i + "=" + instance[i];
+                prob *= (double) (featureCounts.getOrDefault(feature, new HashMap<>())
+                        .getOrDefault(label, 0) + 1)
+                        / (classCounts.get(label) + classCounts.size());
+            }
+
+            if (prob > maxProb) {
+                maxProb = prob;
+                bestLabel = label;
+            }
+        }
+        return bestLabel;
+    }
+
+    // Load CSV file
+    public static String[][] loadCSV(String filepath) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader(filepath));
+    // Skip header and read the rest into a 2D array
+    String[][] data = br.lines()
+                        .skip(1) // skip header
+                        .map(line -> line.split(","))
+                        .toArray(String[][]::new);
+    br.close();
+    return data;
+}
+
+
+    // Main method
+    public static void main(String[] args) {
+        try {
+            String[][] data = loadCSV("data.csv");
+            int trainSize = (int) (data.length * 0.7);
+
+            String[][] trainData = new String[trainSize][];
+            String[][] testData = new String[data.length - trainSize][];
+
+            System.arraycopy(data, 0, trainData, 0, trainSize);
+            System.arraycopy(data, trainSize, testData, 0, data.length - trainSize);
+
+            SimpleNaiveBayes classifier = new SimpleNaiveBayes();
+            classifier.train(trainData);
+
+            int correct = 0;
+            Map<String, Integer> truePositives = new HashMap<>();
+            Map<String, Integer> falsePositives = new HashMap<>();
+            Map<String, Integer> falseNegatives = new HashMap<>();
+
+            for (String[] instance : testData) {
+                String trueLabel = instance[instance.length - 1];
+                String predictedLabel = classifier.predict(instance);
+
+                if (trueLabel.equals(predictedLabel)) {
+                    correct++;
+                    truePositives.put(predictedLabel, truePositives.getOrDefault(predictedLabel, 0) + 1);
+                } else {
+                    falsePositives.put(predictedLabel, falsePositives.getOrDefault(predictedLabel, 0) + 1);
+                    falseNegatives.put(trueLabel, falseNegatives.getOrDefault(trueLabel, 0) + 1);
+                }
+            }
+
+            double accuracy = (double) correct / testData.length;
+            System.out.println("Accuracy: " + (accuracy * 100) + "%");
+
+            for (String label : classifier.classCounts.keySet()) {
+                int tp = truePositives.getOrDefault(label, 0);
+                int fp = falsePositives.getOrDefault(label, 0);
+                int fn = falseNegatives.getOrDefault(label, 0);
+
+                double precision = (tp + fp == 0) ? 0 : (double) tp / (tp + fp);
+                double recall = (tp + fn == 0) ? 0 : (double) tp / (tp + fn);
+
+                System.out.println("Class: " + label);
+                System.out.println("  Precision: " + precision);
+                System.out.println("  Recall: " + recall);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
