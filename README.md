@@ -1,6 +1,6 @@
 
 
-# 📌 Simple Naïve Bayes Classifier (Java)
+# 📌 Simple Naïve Bayes Classifier Using Java Classes/API
 
 This project implements a **Naïve Bayes Classifier** in Java using only **core Java libraries** (no external ML libraries).
 It works on a **CSV dataset** where the **last column is the class label**.
